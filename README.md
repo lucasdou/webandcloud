@@ -11,7 +11,7 @@
 
 **Shema de données :**
 
-**Ce qui pourrait être amélioré : **
+**Ce qui pourrait être amélioré :**
  - Implémenter plusieur tags par pétition pour permettre un filtrage plus précis
  - Ne pas importer la liste des signataires lors du chargement, d'où la limite pour le moment du chargement de 5 pétitions par "page" afin de limiter le temps de chargement même avec un certain nombre de signataires.
  - Trouver un moyen plus optimiser de savoir si l'utilisateur à déjà signé que charger la pétition et vérifier les signataires, pour vérifier directement dans la requête et pas dans le endpoint.
