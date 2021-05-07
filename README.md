@@ -10,6 +10,7 @@
 - (optional) tag petition/find petition by tag triée par date de création : On a pour le moment un tag par pétition pour trier plus facilement parmis les pétitions du top 100.
 
 **Shema de données :**
+![image](https://user-images.githubusercontent.com/45417431/117510356-3a1a0c80-af8c-11eb-89bb-a858b26e2893.png)
 
 **Ce qui pourrait être amélioré :**
  - Implémenter plusieur tags par pétition pour permettre un filtrage plus précis
