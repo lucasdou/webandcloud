@@ -63,7 +63,7 @@ public class TinyPetEndpoint {
 			throw new UnauthorizedException("Invalid credentials");
 		}
 		
-		Entity e = new Entity("Petition", Long.MAX_VALUE-(new Date()).getTime() +":" + owner.getEmail());
+		Entity e = new Entity("Petitions", Long.MAX_VALUE-(new Date()).getTime() +":" + owner.getEmail());
 		e.setProperty("body", pm.body);
 		e.setProperty("owner", owner.getEmail());
 				
@@ -71,7 +71,7 @@ public class TinyPetEndpoint {
 		ArrayList<String> fset = new ArrayList<String>();
 		fset.add(owner.getEmail());
 		e.setProperty("signatory",fset);
-		e.setProperty("nbSignatory",400);
+		e.setProperty("nbSignatory",1);
 				
 		//crée des tags
 		/*ArrayList<String> fset2 = new ArrayList<String>();
@@ -93,7 +93,7 @@ public class TinyPetEndpoint {
 					throw new UnauthorizedException("Invalid credentials");
 				}
 
-				Query q = new Query("Petition");
+				Query q = new Query("Petitions");
 				
 				/*q.addProjection(new PropertyProjection("body",String.class));
 				q.addProjection(new PropertyProjection("nbSignatory", Integer.class));
@@ -120,14 +120,31 @@ public class TinyPetEndpoint {
 				return CollectionResponse.<Entity>builder().setItems(results).setNextPageToken(cursorString).build();
 			}
 		
+		@ApiMethod(name = "Details", httpMethod = HttpMethod.GET)
+		public List<Entity> Details(@Named("key") String key, User user)
+				throws UnauthorizedException {
+
+			if (user == null) {
+				throw new UnauthorizedException("Invalid credentials");
+			}
+			Key lkey = KeyFactory.createKey("Petitions", key);
+			Query q = new Query("Petitions").setFilter(new FilterPredicate("__key__", FilterOperator.EQUAL, lkey));
+
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+			PreparedQuery pq = datastore.prepare(q);
+			List<Entity> result = pq.asList(FetchOptions.Builder.withLimit(1));
+			return result;
+		}
+		
 		//Charger les pétitions signées par l'utilisateur
 		@ApiMethod(name = "MyPetition", httpMethod = HttpMethod.GET)
 		public CollectionResponse<Entity> MyPetition(@Named("owner") User owner,@Nullable @Named("next") String cursorString) throws UnauthorizedException {
 			if (owner == null) {
 				throw new UnauthorizedException("Invalid credentials");
 			}
-			Query q = new Query("Petition")
+			Query q = new Query("Petitions")
 					.setFilter(new FilterPredicate("signatory", FilterOperator.EQUAL, owner.getEmail()));
+			//q.addSort("nbSignatory", SortDirection.DESCENDING);
 			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 			PreparedQuery pq = datastore.prepare(q);
@@ -149,13 +166,13 @@ public class TinyPetEndpoint {
 			if (user == null) {
 				throw new UnauthorizedException("Invalid credentials");
 			}
-			 DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-			///utiliser coutingSH pour implémenter
-				
-			//https://cloud.google.com/datastore/docs/concepts/entities#updating_an_entity
+			Entity isSign = new Entity("Petitions","true"); //Problème avec un boolean donc si on reçois un return null on considère que l'utilisateur avait déjà signé et sinon alors il vient de signer
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
 			//mettre à jours une entité
-			Key lkey = KeyFactory.createKey("Petition", pm.key);
-			Entity ent = new Entity("Petition","hello");
+			Key lkey = KeyFactory.createKey("Petitions", pm.key);
+			Entity ent = new Entity("Petitions","hello");
+
 			Transaction txn=datastore.beginTransaction();
 			try {
 				ent = datastore.get(lkey);
@@ -167,12 +184,12 @@ public class TinyPetEndpoint {
 			    	signatories.add(user.getEmail());
 			    	ent.setProperty("signatory", signatories);
 				    ent.setProperty("nbSignatory", nb + 1 );
-			    }
+				    isSign = new Entity("Petition","false");
+				   }
 				datastore.put(ent);
 				txn.commit();
-				return ent;
+				//return isSign;
 			} catch (EntityNotFoundException e) {
-					// This should never happen
 					e.printStackTrace();
 				}
 			  finally {
@@ -180,6 +197,6 @@ public class TinyPetEndpoint {
 				    txn.rollback();
 				  }
 			}
-			return ent;
+			return isSign;
 		}
 }
