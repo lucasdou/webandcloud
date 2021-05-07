@@ -1,85 +1,15 @@
-# webandcloud
+Groupe Laforge Douillard Kristensen
+application en fonctionnement : https://dogwood-abacus-300711.appspot.com/indexPet.html#!/home
+Fonctionnalités demandées :
+- Create a petition: On peut créer une petition ayant un nom et un sujet rattaché (un "tag")
+- Sign a petition (cannot sign two times, and better if users are authenticated) : Un utilisateur peut signer une pétition, on vérifie dans la liste des signataires si le mail de la personne authentifiée est présent ou non et on l'ajoute si besoin
+- List petitions  signed by a user triées par date: Sur la page "Mes pétitions" on récupère les pétitions signées par l'utilisateur connectée (par défaut si on crée une pétition on est inclu dans les signataires) le tri se fait via la clé. On affiche 5 pétitions par 5 pétitons.
+- List top100 petitions triées par date : Sur la page home on charge les pétitions par nombre de signataire, le tri par date se faire via la clé, on peux ensuite filtrer par thème de pétitions. On affiche 5 pétitions par 5 pétitons.
+- (optional) tag petition/find petition by tag triée par date de création : On a pour le moment un tag par pétition pour trier plus facilement parmis les pétitions du top 100.
 
-**Be sure your maven has access to the web**
-* you should have file ~/.m2/settings.xml
-* otherwise cp ~molli-p/.m2/settings.xml ~/.m2/
+Shema de données :
 
-```
-molli-p@remote:~/.m2$ cat settings.xml
-<settings>
- <proxies>
- <proxy>
-      <active>true</active>
-      <protocol>https</protocol>
-      <host>proxy.ensinfo.sciences.univ-nantes.prive</host>
-      <port>3128</port>
-    </proxy>
-  </proxies>
-</settings>
-```
-
-## import and run in eclipse
-* install the code in your home:
-```
- cd ~
- git clone https://github.com/momo54/webandcloud.git
- cd webandcloud
- mvn install
-```
-* Change "sobike44" with your google project ID in pom.xml
-* Change "sobike44" with your google project ID in src/main/webapp/WEB-INF/appengine-web.xml
-
-## Run in eclipse
-
-* start an eclipse with gcloud plugin
-```
- /media/Enseignant/eclipse/eclipse
- or ~molli-p/eclipse/eclipse
- ```
-* import the maven project in eclipse
- * File/import/maven/existing maven project
- * browse to ~/webandcloud
- * select pom.xml
- * Finish and wait
- * Ready to deploy and run...
- ```
- gcloud app create error...
- ```
- Go to google cloud shell console (icon near your head in google console)
- ```
- gcloud app create
- ```
-
-
-## Install and Run 
-* (gcloud SDK must be installed first. see https://cloud.google.com/sdk/install)
- * the gcloud command should be in your path. Run the following command to initialize your local install of gcloud.
-```
-gcloud init
-```
-* git clone https://github.com/momo54/webandcloud.git
-* cd webandcloud
-* running local (http://localhost:8080):
-```
-mvn package
-mvn appengine:run
-```
-* Deploying at Google (need gcloud configuration, see error message -> tell you what to do... 
-)
-```
-mvn appengine:deploy
-gcloud app browse
-```
-
-# Access REST API
-* (worked before) 
-```
-https://<yourapp>.appstpot.com/_ah/api/explorer
-```
-* New version of endpoints (see https://cloud.google.com/endpoints/docs/frameworks/java/adding-api-management?hl=fr):
-```
-mvn clean package
-mvn endpoints-framework:openApiDocs
-gcloud endpoints services deploy target/openapi-docs/openapi.json 
-mvn appengine:deploy
-```
+Ce qui pourrait être amélioré : 
+ - Implémenter plusieur tags par pétition pour permettre un filtrage plus précis
+ - Ne pas importer la liste des signataires lors du chargement, d'où la limite pour le moment du chargement de 5 pétitions par "page" afin de limiter le temps de chargement même avec un certain nombre de signataires.
+ - Trouver un moyen plus optimiser de savoir si l'utilisateur à déjà signé que charger la pétition et vérifier les signataires, pour vérifier directement dans la requête et pas dans le endpoint.
